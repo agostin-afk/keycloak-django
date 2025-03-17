@@ -1,9 +1,18 @@
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+DATA_DIR = BASE_DIR / 'data' / 'web'
 
-SECRET_KEY = 'django-insecure-fl$gc$n4tzt$n1v6#5es1q@k7l68a7uviy*q0*fiy$wgn24diy'
+DOTENV_DIR = BASE_DIR / "dotenv_files" / ".env"
+
+load_dotenv(DOTENV_DIR, override=True)
+
+
+SECRET_KEY = os.getenv('SECRET_KEY', 'change-me')
 
 DEBUG = True
 
@@ -17,9 +26,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    
     'api_user',
+    'rest_framework',
+    'django_keycloak.apps.KeycloakAppConfig',
+    
     
 ]
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -29,7 +48,20 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    
+    'django_keycloak.middleware.BaseKeycloakMiddleware',
+    
 ]
+
+AUTHENTICATION_BACKENDS = [
+
+
+    'django_keycloak.auth.backends.KeycloakAuthorizationCodeBackend',
+]
+
+LOGIN_URL = 'keycloak_login'
+
+KEYCLOAK_OIDC_PROFILE_MODEL = 'django_keycloak.OpenIdConnectProfile'
 
 ROOT_URLCONF = 'myproject.urls'
 
@@ -82,24 +114,16 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
+LANGUAGE_CODE = 'pt-br'
 
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Sao_Paulo'
 
 USE_I18N = True
 
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.1/howto/static-files/
-
 STATIC_URL = 'static/'
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
