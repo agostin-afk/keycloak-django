@@ -31,12 +31,14 @@ INSTALLED_APPS = [
     'api_user',
     'rest_framework',
     'django_keycloak.apps.KeycloakAppConfig',
+    'drf_keycloak',
+    
     
     
 ]
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+        "drf_keycloak.authentication.KeycloakAuthBackend",
     ]
 }
 
@@ -50,6 +52,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     
     'django_keycloak.middleware.BaseKeycloakMiddleware',
+    "drf_keycloak.middleware.HeaderMiddleware",
     
 ]
 
@@ -58,6 +61,12 @@ AUTHENTICATION_BACKENDS = [
 
     'django_keycloak.auth.backends.KeycloakAuthorizationCodeBackend',
 ]
+
+KEYCLOAK_CONFIG = {
+
+    "VERIFY_TOKENS_WITH_KEYCLOAK": True
+
+}
 
 LOGIN_URL = 'keycloak_login'
 
