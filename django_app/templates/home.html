@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}Início · Keycloak + Django{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h2>Demonstração Keycloak + Django</h2>
+  <p>
+    Esta aplicação Django usa o <strong>Keycloak</strong> como Identity Provider
+    via <strong>OpenID Connect</strong> (Authorization Code + PKCE).
+  </p>
+
+  {% if is_authenticated %}
+    <div class="status">
+      <span class="dot"></span>
+      <span>Você está autenticado como <strong>{{ user.username }}</strong></span>
+    </div>
+    <p>
+      <a href="/protegido/" class="btn">Ver área protegida</a>
+      <a href="/logout/" class="btn btn-outline" style="margin-left:0.5rem">Sair</a>
+    </p>
+  {% else %}
+    <p>Clique no botão abaixo para ser redirecionado ao Keycloak e fazer login.</p>
+    <a href="/login/" class="btn">Entrar com Keycloak</a>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>Usuários de teste (realm <code>demo</code>)</h2>
+  <p style="margin-bottom:0.75rem;font-size:0.9rem">
+    Use estes usuários <strong>na tela de login do Keycloak</strong> (depois do redirecionamento),
+    <em>não</em> no Admin Console.
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>Usuário</th>
+        <th>Senha</th>
+        <th>Roles</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>admin</code></td>
+        <td><code>admin123</code></td>
+        <td><span class="badge admin">admin</span> <span class="badge">user</span></td>
+      </tr>
+      <tr>
+        <td><code>aluno</code></td>
+        <td><code>aluno123</code></td>
+        <td><span class="badge">user</span></td>
+      </tr>
+      <tr>
+        <td><code>auditor</code></td>
+        <td><code>auditor123</code></td>
+        <td><span class="badge auditor">auditor</span> <span class="badge">user</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Admin Console do Keycloak</h2>
+  <p>
+    <a href="http://localhost:8080/admin" target="_blank" style="color:var(--accent)">
+      http://localhost:8080/admin
+    </a>
+  </p>
+  <p style="margin-top:0.5rem">
+    <strong>Admin Console:</strong> usuário <code>admin</code> / senha <code>admin</code><br>
+    (é diferente do usuário <code>admin</code> do realm demo, que usa <code>admin123</code>)
+  </p>
+  <p style="margin-top:0.5rem">
+    Depois do login no Admin, selecione o realm <strong>demo</strong> no seletor superior esquerdo.
+  </p>
+</div>
+{% endblock %}

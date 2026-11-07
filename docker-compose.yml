@@ -1,0 +1,48 @@
+# Demo simples: Keycloak + Django
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.0.7
+    command: ["start-dev", "--import-realm", "--http-port=8080"]
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HTTP_ENABLED: "true"
+      KC_HOSTNAME_STRICT: "false"
+      KC_HOSTNAME: localhost
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./keycloak/realm-export.json:/opt/keycloak/data/import/realm-export.json:ro
+
+  django:
+    build: ./django_app
+    ports:
+      - "8000:8000"
+    environment:
+      DEBUG: "1"
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_PUBLIC_URL: http://localhost:8080
+      OIDC_RP_CLIENT_ID: django-app
+      OIDC_RP_CLIENT_SECRET: django-secret-change-me
+      OIDC_OP_REALM: demo
+    volumes:
+      - ./django_app:/app
+    depends_on:
+      - keycloak
+    command: >
+      sh -c "
+        echo 'Aguardando Keycloak...' &&
+        for i in $$(seq 1 90); do
+          if curl -sf http://keycloak:9000/health/ready > /dev/null 2>&1 || curl -sf -o /dev/null -w '%{http_code}' http://keycloak:8080/ | grep -qE '200|302'; then
+            echo 'Keycloak OK';
+            sleep 2;
+            break;
+          fi;
+          echo \"tentativa $$i/90...\";
+          sleep 2;
+        done &&
+        python manage.py migrate --noinput &&
+        python manage.py runserver 0.0.0.0:8000
+      "

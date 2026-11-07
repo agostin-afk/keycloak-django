@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Área protegida · Keycloak + Django{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="status">
+    <span class="dot"></span>
+    <span>Autenticado via Keycloak (OIDC)</span>
+  </div>
+  <h2>Olá, {{ name|default:user.username }}!</h2>
+  <p>
+    Esta página só pode ser acessada por usuários autenticados.
+    O Django validou o token JWT emitido pelo Keycloak.
+  </p>
+  <table>
+    <tr><th>Username</th><td>{{ user.username }}</td></tr>
+    <tr><th>E-mail</th><td>{{ email|default:"—" }}</td></tr>
+    <tr>
+      <th>Roles (realm)</th>
+      <td>
+        {% for role in roles %}
+          <span class="badge {% if role == 'admin' %}admin{% elif role == 'auditor' %}auditor{% endif %}">{{ role }}</span>
+        {% empty %}
+          <span style="color:var(--muted)">nenhuma role explícita</span>
+        {% endfor %}
+      </td>
+    </tr>
+  </table>
+</div>
+
+{% if claims %}
+<div class="card">
+  <h2>Claims do ID Token (resumo)</h2>
+  <p>Dados que o Keycloak enviou no token após o login:</p>
+  <pre>{{ claims }}</pre>
+</div>
+{% endif %}
+
+<p style="margin-top:1rem">
+  <a href="/" class="btn btn-outline">Voltar</a>
+  <a href="/logout/" class="btn" style="margin-left:0.5rem">Sair (SSO Logout)</a>
+</p>
+{% endblock %}
